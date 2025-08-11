@@ -7,7 +7,8 @@ const {
   updateEvent,
   deleteEvent,
 } = require("../controllers/events");
-
+const authenticate = require("../middlewares/auth");
+router.use(authenticate);
 router.get("/", getAllEvents);
 
 router.post("/", createEvent);

@@ -7,7 +7,8 @@ const {
   deleteAuftrag,
   createAuftrag,
 } = require("../controllers/auftraege");
-
+const authenticate = require("../middlewares/auth");
+router.use(authenticate);
 router.get("/", getAllAuftraege);
 router.get("/:id", getAuftragById);
 router.put("/:id", updateAuftrag);
