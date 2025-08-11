@@ -2,7 +2,10 @@ const Auftrag = require("../models/auftrag");
 
 const createAuftrag = async (req, res) => {
   try {
-    const newAuftrag = await Auftrag.create(req.body);
+    const newAuftrag = await Auftrag.create({
+      ...req.body,
+      createdBy: req.user._id,
+    });
     res.status(201).json(newAuftrag);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -48,6 +48,7 @@ const auftragSchema = new mongoose.Schema(
     bezahlMethod: { type: String },
     bemerkungen: { type: String },
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event" }, // link to event
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // link to event
   },
   { timestamps: true }
 );
