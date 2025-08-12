@@ -8,7 +8,7 @@ const {
 } = require("../controllers/users");
 
 const authenticate = require("../middlewares/auth");
-
+router.get("/me", authenticate, getLoggedInUser);
 router.post("/register", register);
 router.post("/login", login);
 router.post("/logout", logout);
