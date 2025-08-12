@@ -16,8 +16,8 @@ const register = async (req, res) => {
     const userToken = jwt.sign(payload, JWT_SECRET);
     const options = {
       httpOnly: true,
-      secure: false, // true only in prod (https)
-      sameSite: "lax", // "lax" works well for cross-origin but secure https required for "none"
+      secure: false, // because dev is HTTP
+      sameSite: "lax", // 'lax' works for cross-site requests on localhost
       expires: new Date(Date.now() + 9000000),
     };
     console.log("JWt Token", userToken);
@@ -53,8 +53,8 @@ const login = async (req, res) => {
         const userToken = jwt.sign(payload, JWT_SECRET);
         const options = {
           httpOnly: true,
-          secure: false, // true only in prod (https)
-          sameSite: "lax", // "lax" works well for cross-origin but secure https required for "none"
+          secure: false, // because dev is HTTP
+          sameSite: "lax", // 'lax' works for cross-site requests on localhost
           expires: new Date(Date.now() + 9000000),
         };
         console.log("JWt Token", userToken);
@@ -72,6 +72,7 @@ const logout = async (req, res) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
   });
+  res.status(200).json({ message: "Logout successful" });
 };
 
 const getLoggedInUser = async (req, res) => {

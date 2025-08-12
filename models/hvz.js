@@ -8,7 +8,7 @@ const hvzSchema = new mongoose.Schema(
     },
     kundeName: { type: String, required: true },
     straße: { type: String, required: true },
-    datum: { type: Date, required: true },
+    datum: { type: String, required: true },
     status: { type: String, required: true },
     hvzName: { type: String },
     classification: { type: String },

@@ -7,7 +7,8 @@ const {
   updateHvz,
   deleteHvz,
 } = require("../controllers/hvzs");
-
+const authenticate = require("../middlewares/auth");
+router.use(authenticate);
 router.get("/", getAllHvz);
 
 router.post("/", createHvz);

@@ -7,14 +7,14 @@ const parseGermanDate = (dateStr) => {
 
 const createHvz = async (req, res) => {
   try {
-    if (req.body.datum) {
-      req.body.datum = parseGermanDate(req.body.datum);
-    }
+    console.log("📥 Received HVZ data:", req.body);
 
-    const newHvz = await Hvz.create(req.body);
-    res.status(201).json(newHvz);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+    const hvz = await Hvz.create(req.body);
+
+    res.status(201).json(hvz);
+  } catch (err) {
+    console.error("❌ Error creating HVZ:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
