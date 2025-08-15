@@ -5,6 +5,9 @@ const connectDB = require("./config/db");
 const auftragRouter = require("./routes/auftraege");
 const events = require("./routes/events");
 const hvzs = require("./routes/hvzs");
+const lagerungs = require("./routes/Lagerungs");
+const invoices = require("./routes/invoice");
+const ausgaben = require("./routes/ausgabe");
 const authRouter = require("./routes/users");
 const cookieParser = require("cookie-parser");
 const PORT = process.env.PORT || 8000;
@@ -17,6 +20,9 @@ app.use(express.json());
 app.use("/api/auftraege", auftragRouter);
 app.use("/api/events", events);
 app.use("/api/hvzs", hvzs);
+app.use("/api/lagerungs", lagerungs);
+app.use("/api/ausgaben", ausgaben);
+app.use("/api/invoices", invoices);
 app.use("/auth", authRouter);
 
 connectDB().then(() => {
