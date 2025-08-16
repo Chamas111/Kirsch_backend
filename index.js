@@ -23,6 +23,7 @@ app.use("/api/hvzs", hvzs);
 app.use("/api/lagerungs", lagerungs);
 app.use("/api/ausgaben", ausgaben);
 app.use("/api/invoices", invoices);
+
 app.use("/auth", authRouter);
 
 connectDB().then(() => {

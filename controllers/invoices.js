@@ -68,10 +68,28 @@ const deleteRechnung = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const lagerRechnungen = async (req, res) => {
+  try {
+    console.log("📌 LagerRechnungen API called");
+
+    const lagerInvoices = await Invoice.find({ isLager: true });
+
+    res.json(lagerInvoices);
+  } catch (err) {
+    console.error("❌ Error fetching Lager invoices:", err);
+    res.status(500).json({
+      message: "Error fetching Lager invoices",
+      error: err.message,
+    });
+  }
+};
+
 module.exports = {
   createRechnung,
   getAllRechnung,
   getRechnungById,
   updateRechnung,
   deleteRechnung,
+  lagerRechnungen,
 };

@@ -13,6 +13,12 @@ const invoiceSchema = new mongoose.Schema(
     nettoBetrag: { type: Number, required: true },
     mwst: { type: Number },
     brutto: { type: Number },
+    faellig: {
+      type: String,
+      enum: ["Erinnerung gesendet", "Erinnerung", "<15 Tage", "-", ""],
+      default: "",
+    },
+    isLager: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
