@@ -63,10 +63,65 @@ const deleteAuftrag = async (req, res) => {
   }
 };
 
+const auftragStatsMonthly = async (req, res) => {
+  try {
+    const year = parseInt(req.params.year); // e.g. /stats/monthly/2025
+
+    const stats = await Auftrag.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: new Date(`${year}-01-01`),
+            $lt: new Date(`${year + 1}-01-01`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: "$createdAt" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.json(
+      stats.map((s) => ({
+        month: s._id,
+        count: s.count,
+      }))
+    );
+  } catch (err) {
+    console.error("❌ Error fetching monthly stats:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+const auftragStatsYearly = async (req, res) => {
+  try {
+    const stats = await Auftrag.aggregate([
+      {
+        $group: {
+          _id: { $year: "$createdAt" },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    res.json(stats.map((s) => ({ year: s._id, count: s.count })));
+  } catch (err) {
+    console.error("❌ Error fetching yearly stats:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 module.exports = {
   createAuftrag,
   getAllAuftraege,
   getAuftragById,
   updateAuftrag,
   deleteAuftrag,
+  auftragStatsYearly,
+  auftragStatsMonthly,
 };

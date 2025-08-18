@@ -17,4 +17,5 @@ router.get("/lager", lagerRechnungen);
 router.get("/:id", getRechnungById);
 router.put("/:id", updateRechnung);
 router.delete("/:id", deleteRechnung);
+
 module.exports = router;
