@@ -6,9 +6,13 @@ const {
   updateAuftrag,
   deleteAuftrag,
   createAuftrag,
+  auftragStatsYearly,
+  auftragStatsMonthly,
 } = require("../controllers/auftraege");
 const authenticate = require("../middlewares/auth");
 router.use(authenticate);
+router.get("/stats/yearly", auftragStatsYearly);
+router.get("/stats/monthly/:year", auftragStatsMonthly);
 router.get("/", getAllAuftraege);
 router.get("/:id", getAuftragById);
 router.put("/:id", updateAuftrag);
