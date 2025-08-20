@@ -25,7 +25,7 @@ const auftragSchema = new mongoose.Schema(
     },
     auszugsEtage: { type: String },
     auszugsAufzug: { type: String },
-
+    auszugHvz: { type: String },
     einzugsadresse: {
       type: String,
       // required: [true, "Der Titel im Formular ist ein obligatorisches Feld!"],
@@ -38,6 +38,7 @@ const auftragSchema = new mongoose.Schema(
       type: String,
       // required: [true, "Der Titel im Formular ist ein obligatorisches Feld!"],
     },
+    einzugHvz: { type: String },
 
     preis: {
       type: String,
@@ -47,6 +48,7 @@ const auftragSchema = new mongoose.Schema(
     others: { type: String },
     bezahlMethod: { type: String },
     bemerkungen: { type: String },
+    umzugsListe: { type: String },
     eventId: { type: mongoose.Schema.Types.ObjectId, ref: "Event" }, // link to event
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, // link to event
   },

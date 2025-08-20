@@ -1,14 +1,46 @@
 const Auftrag = require("../models/auftrag");
-
+const Hvz = require("../models/hvz");
+// controllers/auftraege.js
 const createAuftrag = async (req, res) => {
   try {
+    console.log("📥 Incoming Auftrag data:", req.body);
+
     const newAuftrag = await Auftrag.create({
       ...req.body,
       createdBy: req.user._id,
     });
+
+    // --- HVZ Creation ---
+    if (req.body.auszugHvz) {
+      const hvzData = {
+        auftragId: newAuftrag._id,
+        kundeName: newAuftrag.kundeName,
+        straße: newAuftrag.auszugsadresse, // renamed to match schema
+        datum: newAuftrag.datum,
+        status: "Nicht bestellt", // required field
+        hvzName: "Auszug-HVZ", // optional, you can customize
+        classification: "Privat", // optional
+      };
+      await Hvz.create(hvzData);
+    }
+
+    if (req.body.einzugHvz) {
+      const hvzData = {
+        auftragId: newAuftrag._id,
+        kundeName: newAuftrag.kundeName,
+        straße: newAuftrag.einzugsadresse,
+        datum: newAuftrag.datum,
+        status: "Nicht bestellt", // required field
+        hvzName: "Einzug-HVZ", // optional, you can customize
+        classification: "Privat",
+      };
+      await Hvz.create(hvzData);
+    }
+
     res.status(201).json(newAuftrag);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("❌ Backend Error in createAuftrag:", error);
+    res.status(500).json({ message: error.message, stack: error.stack });
   }
 };
 
@@ -35,17 +67,71 @@ const getAuftragById = async (req, res) => {
 
 const updateAuftrag = async (req, res) => {
   try {
-    const updatedAuftrag = await Auftrag.findOneAndUpdate(
-      { _id: req.params.id },
-      req.body,
-      { new: true }
-    );
-    if (!updatedAuftrag) {
+    // Update the Auftrag
+    const auftrag = await Auftrag.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
+    if (!auftrag) {
       return res.status(404).json({ message: "Auftrag nicht gefunden" });
     }
-    res.json(updatedAuftrag);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+
+    // --- HVZ Handling ---
+
+    // 1️⃣ Auszug-HVZ
+    if (req.body.auszugHvz) {
+      // Check if Auszug-HVZ already exists
+      const existingAuszug = await Hvz.findOne({
+        auftragId: auftrag._id,
+        hvzName: "Auszug-HVZ",
+      });
+      if (!existingAuszug) {
+        await Hvz.create({
+          auftragId: auftrag._id,
+          kundeName: auftrag.kundeName,
+          straße: auftrag.auszugsadresse,
+          datum: auftrag.datum,
+          status: "Nicht bestellt",
+          hvzName: "Auszug-HVZ",
+          classification: "Privat",
+        });
+      }
+    } else {
+      // Delete Auszug-HVZ if unchecked
+      await Hvz.deleteMany({
+        auftragId: auftrag._id,
+        hvzName: "Auszug-HVZ",
+      });
+    }
+
+    // 2️⃣ Einzug-HVZ
+    if (req.body.einzugHvz) {
+      const existingEinzug = await Hvz.findOne({
+        auftragId: auftrag._id,
+        hvzName: "Einzug-HVZ",
+      });
+      if (!existingEinzug) {
+        await Hvz.create({
+          auftragId: auftrag._id,
+          kundeName: auftrag.kundeName,
+          straße: auftrag.einzugsadresse,
+          datum: auftrag.datum,
+          status: "Nicht bestellt",
+          hvzName: "Einzug-HVZ",
+          classification: "Privat",
+        });
+      }
+    } else {
+      await Hvz.deleteMany({
+        auftragId: auftrag._id,
+        hvzName: "Einzug-HVZ",
+      });
+    }
+
+    res.status(200).json(auftrag);
+  } catch (err) {
+    console.error("❌ Error updating Auftrag:", err);
+    res.status(500).json({ message: err.message, stack: err.stack });
   }
 };
 
