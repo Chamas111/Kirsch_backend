@@ -43,6 +43,7 @@ const login = async (req, res) => {
       );
       if (!isPasswordValid) {
         res.status(400).json({ message: "Invalid Password Attempt" });
+        return res.status(400).json({ message: "Invalid Password Attempt" });
       } else {
         const payload = {
           _id: userDocument._id,
