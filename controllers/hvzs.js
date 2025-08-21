@@ -5,15 +5,23 @@ const parseGermanDate = (dateStr) => {
   return new Date(`${year}-${month}-${day}`);
 };
 
+const formatGermanDate = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+};
+
 const createHvz = async (req, res) => {
   try {
-    console.log("📥 Received HVZ data:", req.body);
-
-    const hvz = await Hvz.create(req.body);
-
+    let hvzData = { ...req.body };
+    if (hvzData.datum) {
+      hvzData.datum = formatGermanDate(hvzData.datum);
+    }
+    const hvz = await Hvz.create(hvzData);
     res.status(201).json(hvz);
   } catch (err) {
-    console.error("❌ Error creating HVZ:", err);
     res.status(500).json({ message: err.message });
   }
 };

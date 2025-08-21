@@ -1,6 +1,14 @@
 const Auftrag = require("../models/auftrag");
 const Hvz = require("../models/hvz");
 // controllers/auftraege.js
+
+const formatGermanDate = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const year = d.getFullYear();
+  return `${day}.${month}.${year}`;
+};
 const createAuftrag = async (req, res) => {
   try {
     console.log("📥 Incoming Auftrag data:", req.body);
@@ -16,7 +24,7 @@ const createAuftrag = async (req, res) => {
         auftragId: newAuftrag._id,
         kundeName: newAuftrag.kundeName,
         straße: newAuftrag.auszugsadresse, // renamed to match schema
-        datum: newAuftrag.datum,
+        datum: formatGermanDate(newAuftrag.datum),
         status: "Nicht bestellt", // required field
         hvzName: "Auszug-HVZ", // optional, you can customize
         classification: "Privat", // optional
@@ -29,7 +37,7 @@ const createAuftrag = async (req, res) => {
         auftragId: newAuftrag._id,
         kundeName: newAuftrag.kundeName,
         straße: newAuftrag.einzugsadresse,
-        datum: newAuftrag.datum,
+        datum: formatGermanDate(newAuftrag.datum),
         status: "Nicht bestellt", // required field
         hvzName: "Einzug-HVZ", // optional, you can customize
         classification: "Privat",
@@ -90,7 +98,7 @@ const updateAuftrag = async (req, res) => {
           auftragId: auftrag._id,
           kundeName: auftrag.kundeName,
           straße: auftrag.auszugsadresse,
-          datum: auftrag.datum,
+          datum: formatGermanDate(auftrag.datum),
           status: "Nicht bestellt",
           hvzName: "Auszug-HVZ",
           classification: "Privat",
@@ -115,7 +123,7 @@ const updateAuftrag = async (req, res) => {
           auftragId: auftrag._id,
           kundeName: auftrag.kundeName,
           straße: auftrag.einzugsadresse,
-          datum: auftrag.datum,
+          datum: formatGermanDate(auftrag.datum),
           status: "Nicht bestellt",
           hvzName: "Einzug-HVZ",
           classification: "Privat",
@@ -137,14 +145,23 @@ const updateAuftrag = async (req, res) => {
 
 const deleteAuftrag = async (req, res) => {
   try {
-    const deletedAuftrag = await Auftrag.findOneAndDelete({
-      _id: req.params.id,
-    });
+    const auftragId = req.params.id;
+
+    // 1. Auftrag löschen
+    const deletedAuftrag = await Auftrag.findByIdAndDelete(auftragId);
     if (!deletedAuftrag) {
-      res.status(404).json({ message: "Auftrag nicht gefunden" });
+      return res.status(404).json({ message: "Auftrag nicht gefunden" });
     }
-    res.json(deletedAuftrag);
+
+    // 2. Alle HVZ löschen, die zu diesem Auftrag gehören
+    await Hvz.deleteMany({ auftragId });
+
+    res.json({
+      message: "Auftrag und zugehörige HVZ erfolgreich gelöscht",
+      deletedAuftrag,
+    });
   } catch (error) {
+    console.error("❌ Fehler beim Löschen:", error);
     res.status(500).json({ message: error.message });
   }
 };
